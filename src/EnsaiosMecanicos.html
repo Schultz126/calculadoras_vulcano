@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Calculadora de Precificação — Ensaios Mecânicos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f2efe6;
+        --paper-2: #e9e4d6;
+        --ink: #2a1a1e;
+        --ink-soft: #6b4a50;
+        --navy: #800020;
+        --navy-2: #802300;
+        --navy-3: #4d0f1f;
+        --steel: #8c3b4e;
+        --amber: #d98e04;
+        --amber-2: #f0a202;
+        --green: #4e7a5a;
+        --red: #a8442f;
+        --line: #c9c2ae;
+        --line-strong: #1b2733;
+        --card: #fbfaf6;
+        --shadow: rgba(27, 39, 51, 0.12);
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      :root:not([data-theme="light"]) {
+        @media (prefers-color-scheme: dark) {
+          --paper: #1a1216;
+          --paper-2: #221519;
+          --ink: #ede0e3;
+          --ink-soft: #b99ca3;
+          --navy: #2e0c16;
+          --navy-2: #4a1424;
+          --steel: #8c3b4e;
+          --amber: #f0a202;
+          --amber-2: #ffc24b;
+          --green: #7fb08c;
+          --red: #e28066;
+          --line: #40252c;
+          --line-strong: #ede0e3;
+          --card: #221519;
+          --shadow: rgba(0, 0, 0, 0.4);
+        }
+      }
+      :root[data-theme="dark"] {
+        --paper: #1a1216;
+        --paper-2: #221519;
+        --ink: #ede0e3;
+        --ink-soft: #b99ca3;
+        --navy: #2e0c16;
+        --navy-2: #4a1424;
+        --steel: #8c3b4e;
+        --amber: #f0a202;
+        --amber-2: #ffc24b;
+        --green: #7fb08c;
+        --red: #e28066;
+        --line: #40252c;
+        --line-strong: #ede0e3;
+        --card: #221519;
+        --shadow: rgba(0, 0, 0, 0.4);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-padding-top: env(safe-area-inset-top, 0px);
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family:
+          "Space Grotesk",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        line-height: 1.5;
+        background-image:
+          linear-gradient(var(--line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--line) 1px, transparent 1px);
+        background-size: 28px 28px;
+        background-attachment: local;
+      }
+      .mono {
+        font-family:
+          "Now" "IBM Plex Mono",
+          "Courier New",
+          monospace;
+      }
+
+      header.hero {
+        background: var(--navy-3);
+        color: #ede8db;
+        padding: 48px 24px 40px;
+        position: relative;
+        overflow: hidden;
+      }
+      header.hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(237, 232, 219, 0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(237, 232, 219, 0.06) 1px, transparent 1px);
+        background-size: 24px 24px;
+        pointer-events: none;
+      }
+      .hero-inner {
+        max-width: 980px;
+        margin: 0 auto;
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+
+      img {
+        width: 15rem;
+        height: 15rem;
+        background-color: var(--paper);
+        border-radius: 50rem;
+        border-width: 10rem;
+        border-color: var(--ink);
+        margin-right: 1rem;
+      }
+      .hero-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12.5px;
+        letter-spacing: 0.02em;
+        color: var(--navy-2);
+        border: 1px solid rgba(240, 162, 2, 0.4);
+        padding: 5px 10px;
+        border-radius: 3px;
+        margin-bottom: 20px;
+      }
+      .hero-tag .dot {
+        width: 6px;
+        height: 6px;
+        background: var(--navy-3);
+        border-radius: 50%;
+        display: inline-block;
+      }
+      h1.hero-title {
+        font-size: clamp(28px, 5vw, 42px);
+        font-weight: 700;
+        margin: 0 0 14px;
+        line-height: 1.15;
+        max-width: 680px;
+      }
+      .hero-sub {
+        font-size: 16px;
+        color: #c7cdd3;
+        max-width: 560px;
+        margin: 0;
+      }
+
+      main {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 36px 24px 80px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1.15fr 1fr;
+        gap: 24px;
+        align-items: start;
+      }
+      @media (max-width: 780px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .panel {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 24px;
+        position: relative;
+      }
+      .panel::before {
+        content: "";
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        width: 14px;
+        height: 14px;
+        border-top: 2px solid var(--line-strong);
+        border-left: 2px solid var(--line-strong);
+      }
+      .panel::after {
+        content: "";
+        position: absolute;
+        bottom: -1px;
+        right: -1px;
+        width: 14px;
+        height: 14px;
+        border-bottom: 2px solid var(--line-strong);
+        border-right: 2px solid var(--line-strong);
+      }
+
+      .panel-label {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        color: var(--ink-soft);
+        margin-bottom: 4px;
+      }
+      .panel-title {
+        font-size: 19px;
+        font-weight: 600;
+        margin: 0 0 20px;
+        color: var(--ink);
+      }
+
+      label.field {
+        display: block;
+        margin-bottom: 18px;
+      }
+      label.field .field-label {
+        display: block;
+        font-size: 13.5px;
+        color: var(--ink-soft);
+        margin-bottom: 6px;
+      }
+      select,
+      input[type="number"] {
+        width: 100%;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 14.5px;
+        padding: 10px 12px;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        color: var(--ink);
+        appearance: none;
+      }
+      select:focus,
+      input[type="number"]:focus,
+      button:focus-visible {
+        outline: 2px solid var(--navy-2);
+        outline-offset: 1px;
+      }
+      select {
+        background-image:
+          linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%),
+          linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%);
+        background-position:
+          calc(100% - 18px) 50%,
+          calc(100% - 13px) 50%;
+        background-size:
+          5px 5px,
+          5px 5px;
+        background-repeat: no-repeat;
+      }
+
+      .row-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+
+      fieldset {
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        padding: 14px 14px 6px;
+        margin: 0 0 18px;
+      }
+      fieldset legend {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--ink-soft);
+        padding: 0 6px;
+      }
+      .mult-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .mult-grid.urgency {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .mult-btn {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12px;
+        padding: 9px 4px;
+        text-align: center;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        cursor: pointer;
+        color: var(--ink-soft);
+        transition:
+          border-color 0.12s ease,
+          color 0.12s ease,
+          background 0.12s ease;
+      }
+      .mult-btn.active {
+        border-color: var(--navy-3);
+        color: var(--ink);
+        background: color-mix(in srgb, var(--navy-2) 14%, var(--paper));
+        font-weight: 600;
+      }
+      .mult-edit {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--ink-soft);
+      }
+      .mult-edit input {
+        width: 64px;
+        padding: 5px 6px;
+        font-size: 12px;
+      }
+
+      /* Readout panel */
+      .readout {
+        background: var(--navy-3);
+        color: #ede8db;
+        border: none;
+      }
+      .readout::before,
+      .readout::after {
+        border-color: var(--navy-2);
+      }
+      .readout .panel-label {
+        color: #8fa1b0;
+      }
+      .readout .panel-title {
+        color: #ede8db;
+      }
+
+      .readout-value {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: clamp(32px, 6vw, 44px);
+        font-weight: 600;
+        color: white;
+        margin: 4px 0 2px;
+        word-break: break-word;
+      }
+      .readout-value .currency {
+        font-size: 0.5em;
+        color: #8fa1b0;
+        margin-right: 4px;
+      }
+
+      .breakdown {
+        margin-top: 20px;
+        border-top: 1px dashed rgba(237, 232, 219, 0.25);
+        padding-top: 16px;
+      }
+      .b-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 13px;
+        padding: 6px 0;
+        color: #c7cdd3;
+        border-bottom: 1px dotted rgba(237, 232, 219, 0.12);
+      }
+      .b-row.total {
+        color: #ede8db;
+        font-weight: 600;
+        border-bottom: none;
+        padding-top: 10px;
+      }
+      .b-row span:first-child {
+        color: #8fa1b0;
+      }
+      .b-row.total span:first-child {
+        color: #ede8db;
+      }
+
+      .compare-box {
+        margin-top: 18px;
+        background: rgba(237, 232, 219, 0.06);
+        border: 1px solid rgba(237, 232, 219, 0.15);
+        border-radius: 3px;
+        padding: 12px 14px;
+        font-size: 13px;
+      }
+      .compare-box .delta {
+        font-family: "IBM Plex Mono", monospace;
+        font-weight: 600;
+      }
+      .delta.up {
+        color: #7fb08c;
+      }
+      .delta.flat {
+        color: #c7cdd3;
+      }
+
+      .catalog-note {
+        font-size: 12.5px;
+        color: var(--ink-soft);
+        margin-top: 10px;
+        line-height: 1.55;
+      }
+
+      section.explain {
+        margin-top: 48px;
+      }
+      section.explain h2 {
+        font-size: 22px;
+        margin-bottom: 6px;
+      }
+      section.explain .sub {
+        color: var(--ink-soft);
+        font-size: 14.5px;
+        margin-bottom: 24px;
+        max-width: 620px;
+      }
+      .formula-strip {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 13px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 16px 18px;
+        overflow-x: auto;
+        white-space: nowrap;
+        margin-bottom: 28px;
+      }
+      .formula-strip .op {
+        color: var(--navy);
+        padding: 0 6px;
+      }
+      .formula-strip .term {
+        color: var(--ink);
+      }
+      .formula-strip .label {
+        display: block;
+        font-size: 10.5px;
+        color: var(--ink-soft);
+        margin-top: 4px;
+        white-space: normal;
+      }
+
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+      @media (max-width: 780px) {
+        .steps {
+          grid-template-columns: 1fr;
+        }
+        img {
+          width: 10rem;
+          height: 10rem;
+        }
+      }
+      .step {
+        border: 1px solid var(--line);
+        background: var(--card);
+        border-radius: 4px;
+        padding: 18px;
+      }
+      .step .num {
+        font-family: "IBM Plex Mono", monospace;
+        color: var(--navy);
+        font-size: 12px;
+        margin-bottom: 8px;
+      }
+      .step h3 {
+        font-size: 15.5px;
+        margin: 0 0 8px;
+      }
+      .step p {
+        font-size: 13.5px;
+        color: var(--ink-soft);
+        margin: 0;
+      }
+
+      footer {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 0 24px 48px;
+        color: var(--ink-soft);
+        font-size: 12.5px;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="nav.js"></script>
+
+    <header class="hero">
+      <div class="hero-inner">
+        <img src="../data/2.png" alt="Logo Vulcano" />
+        <h1 class="hero-title">
+          Calculadora de precificação de ensaios mecânicos
+        </h1>
+      </div>
+    </header>
+
+    <main>
+      <div class="grid">
+        <!-- CONFIG PANEL -->
+        <div class="panel">
+          <div class="panel-label">CONFIGURAÇÃO</div>
+          <h2 class="panel-title">Parâmetros do ensaio</h2>
+
+          <label class="field">
+            <span class="field-label">Tipo de ensaio</span>
+            <select id="ensaioSelect"></select>
+          </label>
+
+          <div class="row-2">
+            <label class="field">
+              <span class="field-label">Horas estimadas (membro)</span>
+              <input type="number" id="horasInput" step="0.1" min="0" />
+            </label>
+            <label class="field">
+              <span class="field-label">Valor cobrado pelo prof. (R$)</span>
+              <input type="number" id="equipInput" step="1" min="0" />
+            </label>
+          </div>
+
+          <!-- Alteração: o campo horaMembroInput foi removido; o valor padrão permanece fixo no cálculo. -->
+
+          <label class="field">
+            <span class="field-label">Número de Amostras</span>
+            <input type="number" id="numEnsaios" step="1" min="1" max="100" />
+          </label>
+
+          <fieldset>
+            <legend>COMPLEXIDADE</legend>
+            <div class="mult-grid" id="complexityGrid"></div>
+          </fieldset>
+
+          <fieldset>
+            <legend>URGÊNCIA</legend>
+            <div class="mult-grid urgency" id="urgencyGrid"></div>
+          </fieldset>
+        </div>
+
+        <!-- READOUT PANEL -->
+        <div class="panel readout">
+          <div class="panel-label">RESULTADO</div>
+          <h2 class="panel-title">Valor calculado</h2>
+          <div class="readout-value">
+            <span class="currency">R$</span><span id="finalValue">0,00</span>
+          </div>
+
+          <div class="breakdown">
+            <div class="b-row">
+              <span>Mão de obra (h × valor-hora)</span
+              ><span class="mono" id="bLabor">R$ 0,00</span>
+            </div>
+            <div class="b-row">
+              <span>× Complexidade</span
+              ><span class="mono" id="bComplexity">×1,0</span>
+            </div>
+            <div class="b-row">
+              <span>+ Valor do professor</span
+              ><span class="mono" id="bEquip">R$ 0,00</span>
+            </div>
+            <div class="b-row">
+              <span>× Urgência</span
+              ><span class="mono" id="bUrgency">×1,0</span>
+            </div>
+            <div class="b-row">
+              <span>× Número de Amostras</span
+              ><span class="mono" id="bUrgency">+ R$35,00</span>
+            </div>
+            <div class="b-row total">
+              <span>Total</span><span class="mono" id="bTotal">R$ 0,00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      (function () {
+        const ensaios = [
+          {
+            id: "dureza",
+            nome: "Ensaio de Dureza",
+            horas: 0.4,
+            equip: 0,
+            precoAtual: 35,
+          },
+          {
+            id: "tracao",
+            nome: "Ensaio de Tração",
+            horas: 1.0,
+            equip: 0,
+            precoAtual: 60,
+          },
+          {
+            id: "espectroscopia",
+            nome: "Ensaio de Espectroscopia",
+            horas: 1.0,
+            equip: 50,
+            precoAtual: 350,
+          },
+          { id: "mev", nome: "MEV", horas: 1.0, equip: 80, precoAtual: 400 },
+          {
+            id: "metalografia",
+            nome: "Ensaio de Metalografia",
+            horas: 0.8,
+            equip: 40,
+            precoAtual: 0,
+          },
+          {
+            id: "compressao",
+            nome: "Ensaio de compressão",
+            horas: 0.5,
+            equip: 0,
+            precoAtual: 20,
+          },
+        ];
+
+        const complexityLevels = [
+          { key: "mb", label: "Muito baixa", mult: 0.8 },
+          { key: "b", label: "Baixa", mult: 1.0 },
+          { key: "m", label: "Média", mult: 1.3 },
+          { key: "a", label: "Alta", mult: 1.6 },
+          { key: "ma", label: "Muito alta", mult: 2.0 },
+        ];
+
+        const urgencyLevels = [
+          { key: "n", label: "Normal", mult: 1.0 },
+          { key: "u", label: "Urgente", mult: 1.2 },
+          { key: "mu", label: "Muito urgente", mult: 1.4 },
+        ];
+
+        const state = {
+          ensaioId: ensaios[0].id,
+          horas: ensaios[0].horas,
+          equip: ensaios[0].equip,
+          numEnsaios: 1,
+          complexityKey: "b",
+          urgencyKey: "n",
+        };
+
+        const selectEl = document.getElementById("ensaioSelect");
+        const horasInput = document.getElementById("horasInput");
+        const equipInput = document.getElementById("equipInput");
+        const complexityGrid = document.getElementById("complexityGrid");
+        const urgencyGrid = document.getElementById("urgencyGrid");
+        const numeroDeEnsaios = document.getElementById("numEnsaios");
+
+        numeroDeEnsaios.value = state.numEnsaios;
+
+        ensaios.forEach((e) => {
+          const opt = document.createElement("option");
+          opt.value = e.id;
+          opt.textContent = e.nome;
+          selectEl.appendChild(opt);
+        });
+
+        function buildMultGrid(container, levels, activeKey, onSelect) {
+          container.innerHTML = "";
+          levels.forEach((lvl) => {
+            const btn = document.createElement("div");
+            btn.className =
+              "mult-btn" + (lvl.key === activeKey ? " active" : "");
+            btn.textContent = lvl.label;
+            btn.setAttribute("role", "button");
+            btn.setAttribute("tabindex", "0");
+            btn.addEventListener("click", () => onSelect(lvl.key));
+            btn.addEventListener("keydown", (ev) => {
+              if (ev.key === "Enter" || ev.key === " ") {
+                ev.preventDefault();
+                onSelect(lvl.key);
+              }
+            });
+            container.appendChild(btn);
+          });
+        }
+
+        function currentComplexityMult() {
+          return complexityLevels.find((l) => l.key === state.complexityKey)
+            .mult;
+        }
+        function currentUrgencyMult() {
+          return urgencyLevels.find((l) => l.key === state.urgencyKey).mult;
+        }
+
+        function fmt(n) {
+          return n.toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        }
+
+        function render() {
+          horasInput.value = state.horas;
+          equipInput.value = state.equip;
+          numeroDeEnsaios.value = state.numEnsaios;
+
+          buildMultGrid(
+            complexityGrid,
+            complexityLevels,
+            state.complexityKey,
+            (key) => {
+              state.complexityKey = key;
+              render();
+            },
+          );
+          buildMultGrid(urgencyGrid, urgencyLevels, state.urgencyKey, (key) => {
+            state.urgencyKey = key;
+            render();
+          });
+
+          // Alteração: sem o campo horaMembroInput, mantém-se R$ 35 como valor fixo.
+          const labor = state.horas * 35;
+          const complexityMult = currentComplexityMult();
+          const urgencyMult = currentUrgencyMult();
+          const laborWithComplexity = labor * complexityMult;
+          const subtotal = laborWithComplexity + state.equip;
+          const total = subtotal * urgencyMult + state.numEnsaios * 35;
+
+          document.getElementById("bLabor").textContent = "R$ " + fmt(labor);
+          document.getElementById("bComplexity").textContent =
+            "×" +
+            complexityMult.toFixed(1) +
+            "  (R$ " +
+            fmt(laborWithComplexity) +
+            ")";
+          document.getElementById("bEquip").textContent =
+            "R$ " + fmt(state.equip);
+          document.getElementById("bUrgency").textContent =
+            "×" + urgencyMult.toFixed(1);
+          document.getElementById("bTotal").textContent = "R$ " + fmt(total);
+          document.getElementById("finalValue").textContent = fmt(total);
+
+          const ensaio = ensaios.find((e) => e.id === state.ensaioId);
+          const deltaEl = document.getElementById("deltaValue");
+          if (ensaio.precoAtual > 0) {
+            document.getElementById("currentPrice").textContent =
+              "R$ " + fmt(ensaio.precoAtual);
+            const delta = total - ensaio.precoAtual;
+            const deltaPct = (delta / ensaio.precoAtual) * 100;
+            if (Math.abs(delta) < 0.005) {
+              deltaEl.textContent = "igual ao valor atual";
+              deltaEl.className = "delta mono flat";
+            } else {
+              const sign = delta > 0 ? "+" : "";
+              deltaEl.textContent =
+                sign +
+                "R$ " +
+                fmt(delta) +
+                " (" +
+                sign +
+                deltaPct.toFixed(0) +
+                "%)";
+              deltaEl.className = "delta mono up";
+            }
+          } else {
+            document.getElementById("currentPrice").textContent =
+              "sem preço de referência";
+            deltaEl.textContent = "serviço novo, sem valor anterior";
+            deltaEl.className = "delta mono flat";
+          }
+        }
+
+        selectEl.addEventListener("change", () => {
+          const e = ensaios.find((x) => x.id === selectEl.value);
+          state.ensaioId = e.id;
+          state.horas = e.horas;
+          state.equip = e.equip;
+          render();
+        });
+
+        horasInput.addEventListener("input", () => {
+          state.horas = parseFloat(horasInput.value) || 0;
+          render();
+        });
+        equipInput.addEventListener("input", () => {
+          state.equip = parseFloat(equipInput.value) || 0;
+          render();
+        });
+        numeroDeEnsaios.addEventListener("input", () => {
+          state.numEnsaios = parseInt(numeroDeEnsaios.value, 10) || 0;
+          render();
+        });
+
+        render();
+      })();
+    </script>
+    <script src="./nav.js"></script>
+  </body>
+</html>

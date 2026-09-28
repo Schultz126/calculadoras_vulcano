@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Calculadora de Precificação — NR-12</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f2efe6;
+        --paper-2: #e9e4d6;
+        --ink: #2a1a1e;
+        --ink-soft: #6b4a50;
+        --navy: #800020;
+        --navy-2: #802300;
+        --navy-3: #4d0f1f;
+        --steel: #8c3b4e;
+        --amber: #d98e04;
+        --amber-2: #f0a202;
+        --green: #4e7a5a;
+        --red: #a8442f;
+        --line: #c9c2ae;
+        --line-strong: #1b2733;
+        --card: #fbfaf6;
+        --shadow: rgba(27, 39, 51, 0.12);
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      :root:not([data-theme="light"]) {
+        @media (prefers-color-scheme: dark) {
+          --paper: #1a1216;
+          --paper-2: #221519;
+          --ink: #ede0e3;
+          --ink-soft: #b99ca3;
+          --navy: #2e0c16;
+          --navy-2: #4a1424;
+          --steel: #8c3b4e;
+          --amber: #f0a202;
+          --amber-2: #ffc24b;
+          --green: #7fb08c;
+          --red: #e28066;
+          --line: #40252c;
+          --line-strong: #ede0e3;
+          --card: #221519;
+          --shadow: rgba(0, 0, 0, 0.4);
+        }
+      }
+      :root[data-theme="dark"] {
+        --paper: #1a1216;
+        --paper-2: #221519;
+        --ink: #ede0e3;
+        --ink-soft: #b99ca3;
+        --navy: #2e0c16;
+        --navy-2: #4a1424;
+        --steel: #8c3b4e;
+        --amber: #f0a202;
+        --amber-2: #ffc24b;
+        --green: #7fb08c;
+        --red: #e28066;
+        --line: #40252c;
+        --line-strong: #ede0e3;
+        --card: #221519;
+        --shadow: rgba(0, 0, 0, 0.4);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-padding-top: env(safe-area-inset-top, 0px);
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family:
+          "Space Grotesk",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        line-height: 1.5;
+        background-image:
+          linear-gradient(var(--line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--line) 1px, transparent 1px);
+        background-size: 28px 28px;
+        background-attachment: local;
+      }
+      .mono {
+        font-family: "IBM Plex Mono", "Courier New", monospace;
+      }
+      header.hero {
+        background: var(--navy);
+        color: #ede0e3;
+        padding: 44px 24px 36px;
+        position: relative;
+        overflow: hidden;
+      }
+      header.hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(237, 224, 227, 0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(237, 224, 227, 0.06) 1px, transparent 1px);
+        background-size: 24px 24px;
+        pointer-events: none;
+      }
+      .hero-inner {
+        max-width: 980px;
+        margin: 0 auto;
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+      img {
+        width: 15rem;
+        height: 15rem;
+        background-color: var(--paper);
+        border-radius: 50rem;
+        border-width: 10rem;
+        border-color: var(--ink);
+        margin-right: 1rem;
+      }
+      @media (max-width: 780px) {
+        img {
+          width: 10rem;
+          height: 10rem;
+        }
+      }
+      h1.hero-title {
+        font-size: clamp(26px, 4.5vw, 38px);
+        font-weight: 700;
+        margin: 0 0 12px;
+        line-height: 1.15;
+        max-width: 720px;
+      }
+      .hero-sub {
+        font-size: 15.5px;
+        color: #d6c0c5;
+        max-width: 600px;
+        margin: 0;
+      }
+      main {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 32px 24px 80px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 22px;
+        align-items: start;
+      }
+      @media (max-width: 820px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .panel {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 22px;
+        position: relative;
+      }
+      .panel::before {
+        content: "";
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        width: 14px;
+        height: 14px;
+        border-top: 2px solid var(--line-strong);
+        border-left: 2px solid var(--line-strong);
+      }
+      .panel::after {
+        content: "";
+        position: absolute;
+        bottom: -1px;
+        right: -1px;
+        width: 14px;
+        height: 14px;
+        border-bottom: 2px solid var(--line-strong);
+        border-right: 2px solid var(--line-strong);
+      }
+      .panel-label {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        color: var(--ink-soft);
+        margin-bottom: 4px;
+      }
+      .panel-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0 0 16px;
+        color: var(--ink);
+      }
+      label.field {
+        display: block;
+        margin-bottom: 16px;
+      }
+      label.field .field-label {
+        display: block;
+        font-size: 13px;
+        color: var(--ink-soft);
+        margin-bottom: 6px;
+      }
+      select,
+      input[type="number"] {
+        width: 100%;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 14px;
+        padding: 9px 11px;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        color: var(--ink);
+        appearance: none;
+      }
+      input[disabled] {
+        background: var(--paper-2);
+        color: var(--ink-soft);
+        cursor: not-allowed;
+      }
+      select:focus,
+      input:focus,
+      .mult-btn:focus-visible {
+        outline: 2px solid var(--navy-2);
+        outline-offset: 1px;
+      }
+      .row-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .slider-box {
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        padding: 12px 14px 14px;
+        margin-bottom: 14px;
+        background: var(--paper);
+      }
+      .slider-box .field-label {
+        font-size: 13px;
+        color: var(--ink-soft);
+        margin-bottom: 8px;
+        display: block;
+      }
+      .slider-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .faixa-tag {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11px;
+        color: var(--ink-soft);
+        margin-top: 4px;
+      }
+      fieldset {
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        padding: 12px 12px 4px;
+        margin: 0 0 14px;
+      }
+      fieldset legend {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.05em;
+        color: var(--ink-soft);
+        padding: 0 6px;
+      }
+      .mult-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 7px;
+        margin-bottom: 8px;
+      }
+      .mult-grid.cols3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .mult-grid.cols2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .mult-btn {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11px;
+        padding: 9px 4px;
+        text-align: center;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        cursor: pointer;
+        color: var(--ink-soft);
+        transition:
+          border-color 0.12s ease,
+          color 0.12s ease,
+          background 0.12s ease;
+        line-height: 1.3;
+      }
+      .mult-btn .sub {
+        display: block;
+        font-size: 9.5px;
+        opacity: 0.75;
+        margin-top: 2px;
+      }
+      .mult-btn.active {
+        border-color: var(--navy-3);
+        color: var(--ink);
+        background: color-mix(in srgb, var(--navy-2) 14%, var(--paper));
+        font-weight: 600;
+      }
+      .readout {
+        background: var(--navy);
+        color: #ede0e3;
+        border: none;
+      }
+      .readout::before,
+      .readout::after {
+        border-color: var(--navy);
+      }
+      .readout .panel-label {
+        color: #c7a4ac;
+      }
+      .readout .panel-title {
+        color: #ede0e3;
+      }
+      .readout-value {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: clamp(28px, 5vw, 40px);
+        font-weight: 600;
+        color: white;
+        margin: 4px 0 2px;
+        word-break: break-word;
+      }
+      .readout-value .currency {
+        font-size: 0.5em;
+        color: #c7a4ac;
+        margin-right: 4px;
+      }
+      .per-machine {
+        margin-top: 6px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 13.5px;
+        color: #ede0e3;
+      }
+      .per-machine span {
+        color: #c7a4ac;
+      }
+      .breakdown {
+        margin-top: 18px;
+        border-top: 1px dashed rgba(237, 224, 227, 0.25);
+        padding-top: 14px;
+      }
+      .b-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12px;
+        padding: 5px 0;
+        color: #d6c0c5;
+        border-bottom: 1px dotted rgba(237, 224, 227, 0.12);
+      }
+      .b-row.total {
+        color: #ede0e3;
+        font-weight: 600;
+        border-bottom: none;
+        padding-top: 10px;
+        font-size: 14px;
+      }
+      .b-row span:first-child {
+        color: #c7a4ac;
+      }
+      .b-row.total span:first-child {
+        color: #ede0e3;
+      }
+      footer {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 0 24px 48px;
+        color: var(--ink-soft);
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="nav.js"></script>
+
+    <header class="hero">
+      <div class="hero-inner">
+        <img src="../data/2.png" alt="Logo Vulcano" />
+        <h1 class="hero-title">Calculadora de precificação NR-12</h1>
+      </div>
+    </header>
+
+    <main>
+      <div class="grid">
+        <div class="panel">
+          <div class="panel-label">CONFIGURAÇÃO</div>
+          <h2 class="panel-title">Parâmetros do projeto</h2>
+
+          <label class="field">
+            <span class="field-label">Quantidade de máquinas totais (Nm)</span>
+            <input
+              type="number"
+              id="nmSlider"
+              min="0"
+              max="100"
+              value="1"
+              step="1"
+            />
+          </label>
+
+          <label class="field">
+            <span class="field-label"
+              >Máquinas replicadas / "irmãs" (100% idênticas)</span
+            >
+            <input
+              type="number"
+              id="nrepInput"
+              min="0"
+              max="100"
+              step="1"
+              value="0"
+            />
+          </label>
+
+          <fieldset>
+            <legend>PORTE / TIPO DA MÁQUINA</legend>
+            <div class="mult-grid cols3" id="porteGrid"></div>
+          </fieldset>
+
+          <label class="field">
+            <span class="field-label"
+              >Horas por máquina (relatório, visitas técnicas, etc)</span
+            >
+            <input type="number" id="horasInput" step="0.5" min="0" />
+          </label>
+
+          <label class="field">
+            <span class="field-label">Quantidade de pontos de risco</span>
+            <input
+              type="number"
+              id="riscoSlider"
+              min="0"
+              max="100"
+              value="0"
+              step="1"
+            />
+            <div class="faixa-tag" id="faixaTag">
+              Faixa: até 5 pontos — ×1,0
+            </div>
+          </label>
+
+          <fieldset>
+            <legend>ESTADO DE CONSERVAÇÃO</legend>
+            <div class="mult-grid" id="estadoGrid"></div>
+          </fieldset>
+
+          <fieldset>
+            <legend>RISCO DO PROJETO</legend>
+            <div class="mult-grid" id="riscoGrid"></div>
+          </fieldset>
+
+          <fieldset>
+            <legend>COMPLEXIDADE DO ESTUDO</legend>
+            <div class="mult-grid" id="complexityGrid"></div>
+          </fieldset>
+
+          <fieldset>
+            <legend>MANUAIS E ESQUEMAS ELÉTRICOS</legend>
+            <div class="mult-grid" id="manuaisGrid"></div>
+          </fieldset>
+
+          <fieldset>
+            <legend>URGÊNCIA DO CLIENTE</legend>
+            <div class="mult-grid cols3" id="urgencyGrid"></div>
+          </fieldset>
+
+          <label class="field">
+            <span class="field-label">ART (R$)</span>
+            <input type="number" id="artInput" step="1" min="0" value="300" />
+          </label>
+        </div>
+
+        <div class="panel readout">
+          <div class="panel-label">RESULTADO</div>
+          <h2 class="panel-title">Valor do projeto</h2>
+          <div class="readout-value">
+            <span class="currency">R$</span><span id="finalValue">0,00</span>
+          </div>
+          <div class="per-machine">
+            <span>≈ R$ </span><span id="perMachineValue">0,00</span
+            ><span> por máquina</span>
+          </div>
+
+          <div class="breakdown">
+            <div class="b-row">
+              <span>Horas totais (visitas técnicas, relatório, etc)</span
+              ><span class="mono" id="bHorasTotal">0 h</span>
+            </div>
+            <div class="b-row">
+              <span>Mão de obra (horas × hora-membro)</span
+              ><span class="mono" id="bLabor">R$ 0,00</span>
+            </div>
+            <div class="b-row">
+              <span>× Pontos de Risco</span
+              ><span class="mono" id="bRisco">×1,0</span>
+            </div>
+            <div class="b-row">
+              <span>× Estado</span><span class="mono" id="bEstado">×1,0</span>
+            </div>
+            <div class="b-row">
+              <span>× Nível de risco</span>
+              <span class="mono" id="bNivelRisco">×0.9</span>
+            </div>
+            <div class="b-row">
+              <span>× Complexidade do estudo</span>
+              <span class="mono" id="bComplexity">×0.9</span>
+            </div>
+            <div class="b-row">
+              <span>× Manuais/esquemas</span
+              ><span class="mono" id="bManuais">×1,0</span>
+            </div>
+            <div class="b-row">
+              <span>+ ART</span><span class="mono" id="bArt">R$ 0,00</span>
+            </div>
+            <div class="b-row">
+              <span>× Urgência</span
+              ><span class="mono" id="bUrgency">×1,0</span>
+            </div>
+            <div class="b-row total">
+              <span>Total</span><span class="mono" id="bTotal">R$ 0,00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      (function () {
+        const porteLevels = [
+          {
+            key: "pequena",
+            label: "Pequena",
+            sub: "Esmeril, furadeira, serra",
+            horas: 5,
+          },
+          {
+            key: "media",
+            label: "Média",
+            sub: "Torno, guilhotina, injetora pq.",
+            horas: 9,
+          },
+          {
+            key: "grande",
+            label: "Grande/Complexa",
+            sub: "Prensa, célula robotizada",
+            horas: 18,
+          },
+        ];
+
+        const estadoLevels = [
+          { key: "bom", label: "Bom", mult: 1.0 },
+          { key: "regular", label: "Regular", mult: 1.2 },
+          { key: "precario", label: "Precário", mult: 1.4 },
+          { key: "muito_precario", label: "Muito precário", mult: 1.6 },
+        ];
+
+        const complexityLevels = [
+          { key: "b", label: "Baixo", mult: 1.0 },
+          { key: "r", label: "Regular", mult: 1.2 },
+          { key: "a", label: "Alto", mult: 1.4 },
+          { key: "ma", label: "Muito Alto", mult: 1.6 },
+        ];
+
+        const manuaisLevels = [
+          {
+            key: "com",
+            label: "Possui manual e esquemas atualizados",
+            mult: 1.0,
+          },
+
+          {
+            key: "man",
+            label: "Somente manual",
+            mult: 1.2,
+          },
+          {
+            key: "esq",
+            label: "Somente esquemas atualizados",
+            mult: 1.2,
+          },
+          {
+            key: "sem",
+            label: "Sem esquemas (levantamento do zero)",
+            mult: 1.4,
+          },
+        ];
+
+        const urgencyLevels = [
+          { key: "n", label: "Normal", mult: 1.0 },
+          { key: "u", label: "Urgente", mult: 1.2 },
+          { key: "mu", label: "Muito urgente", mult: 1.4 },
+        ];
+
+        // Deve ser adicionado depois
+        const riscoLevels = [
+          { key: "b", label: "Baixo", mult: 1.0 },
+          { key: "r", label: "Regular", mult: 1.2 },
+          { key: "a", label: "Alto", mult: 1.4 },
+          { key: "ma", label: "Muito Alto", mult: 1.6 },
+        ];
+
+        function riscoFaixa(pontos) {
+          if (pontos <= 5) return { label: "até 5 pontos", mult: 1.0 };
+          if (pontos <= 15) return { label: "6 a 15 pontos", mult: 1.3 };
+          if (pontos <= 30) return { label: "16 a 30 pontos", mult: 1.7 };
+          return { label: "mais de 30 pontos", mult: 2.2 };
+        }
+
+        const STORAGE_KEY = "calc_nr12_state_v3";
+
+        const state = {
+          nm: 1,
+          nrep: 0,
+          porteKey: "media",
+          horas: null,
+          pontosRisco: 0,
+          risco: "b",
+          complexity: "b",
+          estadoKey: "regular",
+          manuaisKey: "com",
+          urgencyKey: "n",
+          art: 300,
+          horaMembro: 35,
+        };
+
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved) Object.assign(state, JSON.parse(saved));
+        } catch (e) {}
+
+        function currentPorte() {
+          return (
+            porteLevels.find((p) => p.key === state.porteKey) || porteLevels[1]
+          );
+        }
+        if (state.horas === null) state.horas = currentPorte().horas;
+
+        const nmSlider = document.getElementById("nmSlider");
+        const nrepInput = document.getElementById("nrepInput");
+        const horasInput = document.getElementById("horasInput");
+        const riscoSlider = document.getElementById("riscoSlider");
+        const riscoGrid = document.getElementById("riscoGrid");
+        const faixaTag = document.getElementById("faixaTag");
+        const artInput = document.getElementById("artInput");
+        const porteGrid = document.getElementById("porteGrid");
+        const estadoGrid = document.getElementById("estadoGrid");
+        const manuaisGrid = document.getElementById("manuaisGrid");
+        const urgencyGrid = document.getElementById("urgencyGrid");
+        const complexityGrid = document.getElementById("complexityGrid");
+
+        // Auxiliar para montar as option boxes
+        function buildGrid(container, levels, activeKey, onSelect) {
+          container.innerHTML = "";
+          levels.forEach((lvl) => {
+            const btn = document.createElement("div");
+            btn.className =
+              "mult-btn" + (lvl.key === activeKey ? " active" : "");
+            btn.innerHTML =
+              lvl.label +
+              (lvl.sub ? '<span class="sub">' + lvl.sub + "</span>" : "");
+            btn.setAttribute("role", "button");
+            btn.setAttribute("tabindex", "0");
+            btn.addEventListener("click", () => onSelect(lvl.key));
+            btn.addEventListener("keydown", (ev) => {
+              if (ev.key === "Enter" || ev.key === " ") {
+                ev.preventDefault();
+                onSelect(lvl.key);
+              }
+            });
+            container.appendChild(btn);
+          });
+        }
+
+        // Auxiliar para formatar números
+        function fmt(n) {
+          return n.toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        }
+
+        function persist() {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          } catch (e) {}
+        }
+
+        function render() {
+          state.nm = Math.min(100, Math.max(0, parseInt(state.nm, 10) || 0));
+          state.nrep = Math.min(
+            100,
+            Math.max(0, parseInt(state.nrep, 10) || 0),
+          );
+          state.pontosRisco = Math.min(
+            100,
+            Math.max(0, parseInt(state.pontosRisco, 10) || 0),
+          );
+
+          nmSlider.value = state.nm;
+          nrepInput.max = 100;
+          nrepInput.value = state.nrep;
+          horasInput.value = state.horas;
+          riscoSlider.value = state.pontosRisco;
+          artInput.value = state.art;
+
+          const faixa = riscoFaixa(state.pontosRisco);
+          faixaTag.textContent =
+            "Faixa: " + faixa.label + " — ×" + faixa.mult.toFixed(1);
+
+          buildGrid(porteGrid, porteLevels, state.porteKey, (key) => {
+            state.porteKey = key;
+            state.horas = currentPorte().horas;
+            render();
+          });
+          buildGrid(riscoGrid, riscoLevels, state.risco, (key) => {
+            state.risco = key;
+            render();
+          });
+          buildGrid(
+            complexityGrid,
+            complexityLevels,
+            state.complexity,
+            (key) => {
+              state.complexity = key;
+              render();
+            },
+          );
+          buildGrid(estadoGrid, estadoLevels, state.estadoKey, (key) => {
+            state.estadoKey = key;
+            render();
+          });
+          buildGrid(manuaisGrid, manuaisLevels, state.manuaisKey, (key) => {
+            state.manuaisKey = key;
+            render();
+          });
+          buildGrid(urgencyGrid, urgencyLevels, state.urgencyKey, (key) => {
+            state.urgencyKey = key;
+            render();
+          });
+
+          const horasUnidade = state.horas;
+          const horasTotal = state.nm * horasUnidade;
+
+          const labor = horasTotal * state.horaMembro;
+          const riscoMult = faixa.mult;
+          const estadoMult = estadoLevels.find(
+            (l) => l.key === state.estadoKey,
+          ).mult;
+          const manuaisMult = manuaisLevels.find(
+            (l) => l.key === state.manuaisKey,
+          ).mult;
+          const urgencyMult = urgencyLevels.find(
+            (l) => l.key === state.urgencyKey,
+          ).mult;
+          const riscoGridMult = riscoLevels.find(
+            (l) => l.key === state.risco,
+          ).mult;
+          const complexityMult = complexityLevels.find(
+            (l) => l.key === state.complexity,
+          ).mult;
+
+          // Cálculo final
+          const laborAjustada =
+            labor *
+            riscoMult *
+            estadoMult *
+            manuaisMult *
+            riscoGridMult *
+            complexityMult;
+          const subtotal = laborAjustada + state.art + state.nrep * 200;
+          const total = subtotal * urgencyMult;
+          const perMachine = state.nm > 0 ? total / state.nm : 0;
+
+          document.getElementById("bHorasTotal").textContent =
+            state.nm +
+            " × " +
+            horasUnidade.toFixed(1) +
+            "h = " +
+            horasTotal.toFixed(1) +
+            " h";
+          document.getElementById("bLabor").textContent = "R$ " + fmt(labor);
+          document.getElementById("bRisco").textContent =
+            "×" + riscoMult.toFixed(1);
+          document.getElementById("bEstado").textContent =
+            "×" + estadoMult.toFixed(2);
+          document.getElementById("bManuais").textContent =
+            "×" + manuaisMult.toFixed(1);
+          document.getElementById("bArt").textContent = "R$ " + fmt(state.art);
+          document.getElementById("bUrgency").textContent =
+            "×" + urgencyMult.toFixed(1);
+          document.getElementById("bTotal").textContent = "R$ " + fmt(total);
+          document.getElementById("finalValue").textContent = fmt(total);
+          document.getElementById("perMachineValue").textContent =
+            fmt(perMachine);
+          document.getElementById("bNivelRisco").textContent =
+            "×" + riscoGridMult.toFixed(1);
+          document.getElementById("bComplexity").textContent =
+            "×" + complexityMult.toFixed(1);
+
+          persist();
+        }
+
+        nmSlider.addEventListener("input", () => {
+          state.nm = Math.min(
+            100,
+            Math.max(0, parseInt(nmSlider.value, 10) || 0),
+          );
+          render();
+        });
+        nrepInput.addEventListener("input", () => {
+          const value = Number.parseInt(nrepInput.value, 10);
+          state.nrep = Number.isNaN(value)
+            ? 0
+            : Math.min(100, Math.max(0, value));
+          render();
+        });
+        horasInput.addEventListener("input", () => {
+          state.horas = parseFloat(horasInput.value) || 0;
+          render();
+        });
+        riscoSlider.addEventListener("input", () => {
+          state.pontosRisco = parseInt(riscoSlider.value, 10) || 0;
+          render();
+        });
+        artInput.addEventListener("input", () => {
+          state.art = parseFloat(artInput.value) || 0;
+          render();
+        });
+
+        render();
+      })();
+    </script>
+    <script src="./nav.js"></script>
+  </body>
+</html>
