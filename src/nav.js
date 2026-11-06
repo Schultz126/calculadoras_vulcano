@@ -3,6 +3,7 @@
     { href: "index.html", label: "Início" },
     { href: "EnsaiosMecanicos.html", label: "Ensaios Mecânicos" },
     { href: "NR12.html", label: "NR-12" },
+    { href: "ProjetosMecanicos.html", label: "Projetos Mecânicos" },
   ];
 
   const atual =
